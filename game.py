@@ -78,6 +78,8 @@ def construct_card_vals():
         card_vals[i] = 2
     card_vals[55] = 7 # 1 card with 7 cattle heads—number 55
 
+construct_card_vals()
+
 def countHeads(card_stack):
     return sum(card_vals[v] for v in card_stack)
 
@@ -136,11 +138,7 @@ def choose(table, hand):
     if all([val[0] == 5 for k, val in score_dict.iteritems()]):
     	return try_not_to_take(table, hand, score_dict)
     return min(score_dict, key=score_dict.get)
-"""
-n_players = 4
-all_cards = set()
-construct_card_vals()
-"""
+
 def verify_table(table):
     if len(table) != 4:
         print "The number of columns must be equal to 4"
@@ -186,43 +184,13 @@ def start():
             break
     return table, hand
 
-"""
-assert(card_vals[55] == 7)
-
-table = [set([4]), set([3]), set([23]), set([40])]
-hand = set([7, 42, 24, 26, 28])
-junk = set([])
-all_cards = set(range(1, 45))
-assert(choose(table, hand) == 24)
-
-table = [set([4, 5, 6]), set([3]), set([23]), set([40])]
-hand = set([7, 42, 24, 26, 28])
-assert(choose(table, hand) == 7)
-
-table = [set([4, 5, 6]), set([3]), set([23]), set([40])]
-hand = set([7, 42, 24, 26, 28])
-assert(choose(table, hand) == 7)
-
-table = [set([4, 5, 6]), set([3]), set([23]), set([40])]
-hand = set([2, 42, 24, 26, 28])
-assert(choose(table, hand) == 24)
-
-table = [set([4, 5, 6, 7, 8]), set([3]), set([23, 19, 18, 20, 21]), set([40])]
-hand = set([9, 42, 2, 24, 26, 28])
-assert(choose(table, hand) == 42)
-
-table = [set([4, 5, 6, 7, 8]), set([3]), set([23, 19, 18, 20, 21]), set([40])]
-hand = set([9, 2])
-assert(choose(table, hand) == 2)
-"""
-
-n_players = 2
-all_cards = set(range(1, 25))
-construct_card_vals()
-table = [set([1, 2, 3, 4, 5]), set([21, 20, 13, 14, 15]), set([23]), set([24])]
-hand = set([6, 7, 9, 16, 17, 22])
+def init_all(all_cards_i, junk_i, n_players=2):
+    global all_cards, junk
+    all_cards = all_cards_i
+    junk = junk_i
 
 #table, hand = start()
+"""
 while (len(hand) > 0):
     best = choose(table, hand)
     print "The best card to choose is", best
@@ -231,19 +199,4 @@ while (len(hand) > 0):
     table, hand = play(table, hand, best, played)
     print print_table(table)
     print "Current hand: ", hand
-
-"""
-junk = set([23])
-table = [set([1, 2, 3, 4, 5]), set([8, 9, 10, 11, 7]), set([20, 21]), set([22])]
-hand = set([6, 15, 16, 17])
-all_cards = set(range(1, 25))
-print choose(table, hand)
-"""
-"""
-hand = set([5, 6, 10])
-#hand = set([9, 11, 7])
-table = [set([1, 2, 3, 4, 8]), set([22, 23, 24]), set([12, 13, 14, 16, 17]), set([15, 18, 19, 20, 21])]
-junk = set([])
-all_cards = set(range(1, 25))
-print choose(table, hand)
 """
