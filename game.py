@@ -7,6 +7,16 @@ from pprint import pprint
 card_vals = []
 junk = set()
 
+"""
+TODO list:
+1. Test the game for robustness
+2. Resolve all problems for the test cases
+3. Write enum for scoring
+4. Implement better scoring for small cards
+5. Separate UI and logic
+6. Maybe rewrite in OOP fashion (not sure if it's worth it)
+"""
+
 def print_table(table):
     print "The current table is:"
     for i, column in enumerate(table):
