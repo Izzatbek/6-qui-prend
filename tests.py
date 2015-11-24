@@ -2,13 +2,11 @@ from game import *
 import unittest
 
 class TestGame(unittest.TestCase):
-
     def setUp(self):
         init_all(set(range(1, 45)), set([]))
 
     def test_cows(self):
         global card_vals
-        print card_vals
         self.assertEqual(card_vals[55], 7)
 
     def test_dif_1_card(self):
@@ -36,6 +34,20 @@ class TestGame(unittest.TestCase):
         table = [set([1, 2, 3, 4, 5]), set([21, 20, 13, 14, 15]), set([23]), set([24])]
         hand = set([6, 7, 9, 16, 19, 22])
         self.assertEqual(choose(table, hand), 19)
+    """
+    def test_take_column_with_the_least_cow_score(self):
+        init_all(set(range(1, 25)), set([]))
+        table = [set([1, 2, 3, 4, 5]), set([21, 20, 13, 14, 15]), set([23]), set([24])]
+        hand = set([6, 7, 9, 16, 17, 22])
+        self.assertEqual(choose(table, hand), 22)
+    """
+    def test_diffence_considering_junk_table(self):
+        junk = set([8, 9, 10, 11])
+        all_cards = set([12, 21, 13, 23, 24, 1, 20, 6, 7]) | junk
+        init_all(all_cards, junk)
+        table = [set([6, 7]), set([20]), set([24]), set([1])]
+        hand = set([12, 21])
+        self.assertEqual(choose(table, hand), 12)
 
 if __name__ == '__main__':
     unittest.main()

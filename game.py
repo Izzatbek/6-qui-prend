@@ -116,6 +116,13 @@ def check_first_card(table, hand, max_cols, threshold):
     # You can change this threshold
     return any([countHeads(col) < threshold for col in table])
 
+def build_set_of_interest(table, max_cols):
+    global all_cards, junk
+    return all_cards - set.union(*table) - junk | set(max_cols)
+
+def index_difference(list_of_interest, max_card, card):
+    return list_of_interest.index(card) - list_of_interest.index(max_card)
+
 def choose(table, hand):
     score_dict = {}
     table, max_cols = sort_table(table)
@@ -123,16 +130,25 @@ def choose(table, hand):
     #import IPython;IPython.embed()
     if check_first_card(table, hand, max_cols, 2):
         return hand[0]
+    list_of_interest = sorted(build_set_of_interest(table, max_cols))
     for card in hand:
         cur_col_i = find_best_index(table, max_cols, card)
         if cur_col_i != None:
+            ind_dif = index_difference(list_of_interest, max_cols[cur_col_i], card)
+            import IPython;IPython.embed()
             # Ranking, the difference with last card of the column, the number of cards in the column
-            score_dict[card] = [1, card - max_cols[cur_col_i], -len(table[cur_col_i])]
+            score_dict[card] = [1, ind_dif, -len(table[cur_col_i])]
             print score_dict[card][1] - score_dict[card][2]
             if score_dict[card][1] - score_dict[card][2] > 5:
                 score_dict[card][0] = 5 # Change the score to higher
         else:
             # TODO compute the best policy for small cards
+            # Implement two different strategies:
+            # 1) Take the minimmum and you are almost sure that you will take a column
+            # Take a look at the minimum number of cows in any column
+            # 2) Take the maximum card (but minimum in a sequence)
+            # Example: 7, 12, 19, 20, take 19
+            # Make thrshold for the strategies 
             score_dict[card] = [3, 0, 0]
     pprint(score_dict)
     if all([val[0] == 5 for k, val in score_dict.iteritems()]):
@@ -189,14 +205,17 @@ def init_all(all_cards_i, junk_i, n_players=2):
     all_cards = all_cards_i
     junk = junk_i
 
-#table, hand = start()
-"""
-while (len(hand) > 0):
-    best = choose(table, hand)
-    print "The best card to choose is", best
-    played_input = raw_input("Please define the played cards separating by space: ")
-    played = [int(i) for i in played_input.split()]
-    table, hand = play(table, hand, best, played)
-    print print_table(table)
-    print "Current hand: ", hand
-"""
+def main():
+    table, hand = start()
+
+    while (len(hand) > 0):
+        best = choose(table, hand)
+        print "The best card to choose is", best
+        played_input = raw_input("Please define the played cards separating by space: ")
+        played = [int(i) for i in played_input.split()]
+        table, hand = play(table, hand, best, played)
+        print print_table(table)
+        print "Current hand: ", hand
+
+if __name__ == '__main__':
+    main()
