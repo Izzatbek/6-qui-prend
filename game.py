@@ -135,11 +135,12 @@ def choose(table, hand):
         cur_col_i = find_best_index(table, max_cols, card)
         if cur_col_i != None:
             ind_dif = index_difference(list_of_interest, max_cols[cur_col_i], card)
-            import IPython;IPython.embed()
+            #import IPython;IPython.embed()
             # Ranking, the difference with last card of the column, the number of cards in the column
             score_dict[card] = [1, ind_dif, -len(table[cur_col_i])]
-            print score_dict[card][1] - score_dict[card][2]
-            if score_dict[card][1] - score_dict[card][2] > 5:
+            # If the current card put in this column could possibly
+            # lead to taking all the cards in the column
+            if min(score_dict[card][1], n_players) - score_dict[card][2] > 5:
                 score_dict[card][0] = 5 # Change the score to higher
         else:
             # TODO compute the best policy for small cards
@@ -200,9 +201,16 @@ def start():
             break
     return table, hand
 
-def init_all(all_cards_i, junk_i, n_players=2):
-    global all_cards, junk
-    all_cards = all_cards_i
+def init_all(junk_i, n_players_i=None, all_cards_i=None):
+    global all_cards, junk, n_players
+    if not (n_players_i or all_cards_i):
+        print "Please define n_players or all_cards"
+    if not n_players_i:
+        all_cards = all_cards_i
+        n_players = len(all_cards) // 10
+    if not all_cards_i:
+        n_players = n_players_i
+        all_cards = set(range(1, n_players * 10 + 4))
     junk = junk_i
 
 def main():
@@ -214,7 +222,6 @@ def main():
         played_input = raw_input("Please define the played cards separating by space: ")
         played = [int(i) for i in played_input.split()]
         table, hand = play(table, hand, best, played)
-        print print_table(table)
         print "Current hand: ", hand
 
 if __name__ == '__main__':
