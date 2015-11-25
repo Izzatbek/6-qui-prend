@@ -78,6 +78,14 @@ class TestGame(unittest.TestCase):
         hand = set([6, 15, 16, 17])
         self.assertEqual(choose(table, hand), 6)
 
+    def test_consecutive_small_cards(self):
+        junk = set([1, 2, 3, 4, 5, 32])
+        table = [set([17, 24]), set([18, 21, 22, 23, 25]), set([28, 29, 31]), set([30, 33, 34])]
+        hand = set([7, 12, 19, 20, 27])
+        init_all(junk, 3)
+        self.assertNotEqual(choose(table, hand), 20)
+
+
 if __name__ == '__main__':
     unittest.main()
 

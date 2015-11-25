@@ -10,11 +10,8 @@ junk = set()
 """
 TODO list:
 1. Test the game for robustness
-2. Resolve all problems for the test cases
-3. Write enum for scoring
-4. Implement better scoring for small cards
-5. Separate UI and logic
-6. Maybe rewrite in OOP fashion (not sure if it's worth it)
+2. Separate UI and logic
+3. Maybe rewrite in OOP fashion (not sure if it's worth it)
 """
 
 def print_table(table):
@@ -96,15 +93,14 @@ def countHeads(card_stack):
 def try_not_to_take(table, max_cols, hand):
     # Another score_dict cost function
     score_dict = {}
-    opp_set = all_cards - set.union(*table) - set(hand) - junk
-    s_interest = opp_set | set(max_cols)
+    s_interest = build_set_of_interest(table, max_cols) - set(hand)
     col_costs = [countHeads(col) for col in table]
     for card in hand:
         index = find_col_index(table, max_cols, card)
         l_interest = sorted(s_interest | set([card]))
         dif = index_difference(l_interest, max_cols[index], card)
         # Try to find a card which is higher than the card of an opponent
-        if any([card > i for i in opp_set]):
+        if dif > 1: # 1 can be changed
             score_dict[card] = [1, -dif, card]
         # If not, try to take a column with the minimum number of cows
         else:
@@ -125,8 +121,8 @@ def index_difference(list_of_interest, max_card, card):
     return list_of_interest.index(card) - list_of_interest.index(max_card)
 
 def can_postpone(table, index, l_interest, hand, card):
-    interest_wo_my_cards = sorted(set(l_interest) - set(hand) | set([card]))
-    if card != interest_wo_my_cards[-1]:
+    interest_wo_hand = sorted(set(l_interest) - set(hand) | set([card]))
+    if card != interest_wo_hand[-1]:
         return False
     col_costs = [countHeads(col) for col in table]
     return any([cost < col_costs[index] for cost in col_costs])
@@ -157,14 +153,12 @@ def choose(table, hand):
             if min(score_dict[card][1], n_players) - score_dict[card][2] > 5:
                 score_dict[card][0] = 5 # Change the score to higher
         else:
-            # TODO compute the best policy for small cards
-            # Implement two different strategies:
-            # 1) Take the minimmum and you are almost sure that you will take a column
-            # Take a look at the minimum number of cows in any column
-            # 2) Take the maximum card (but minimum in a sequence)
-            # Example: 7, 12, 19, 20, take 19
-            # Make thrshold for the strategies 
-            score_dict[card] = [3, 0, 0]
+            # Maybe add another strategy to compute costs like
+            # taking into account cow scores?
+            interest_wo_hand = sorted(set(l_interest) - set(hand) | set([card]))
+            dif = index_difference(interest_wo_hand, interest_wo_hand[0], card)
+            # Try to find a card which is higher than the card of an opponent
+            score_dict[card] = [3, -dif, card]
     pprint(score_dict)
     if all([val[0] == 5 for k, val in score_dict.iteritems()]):
     	return try_not_to_take(table, max_cols, hand)
