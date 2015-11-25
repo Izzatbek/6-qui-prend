@@ -1,6 +1,9 @@
 # 6-qui-prend
 
-This is an attempt to make a strategy (simple AI) for the [game](https://fr.wikipedia.org/wiki/6_qui_prend_!).
+This is an attempt to make a simple AI for the [game](https://fr.wikipedia.org/wiki/6_qui_prend_!).
+
+French name of the game is **6 qui prend**.
+Other names of this game: **6 Nimmt! / Take 5!**.
 
 Given the current state of the game, meaning:
 * cards on the table

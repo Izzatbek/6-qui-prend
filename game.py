@@ -12,6 +12,7 @@ TODO list:
 1. Test the game for robustness
 2. Separate UI and logic
 3. Maybe rewrite in OOP fashion (not sure if it's worth it)
+4. Add enum for scores
 """
 
 def print_table(table):
