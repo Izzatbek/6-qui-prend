@@ -133,6 +133,13 @@ def build_set_of_interest(table, max_cols):
 def index_difference(list_of_interest, max_card, card):
     return list_of_interest.index(card) - list_of_interest.index(max_card)
 
+def can_postpone(table, index, l_interest, hand, card):
+    interest_wo_my_cards = sorted(set(l_interest) - set(hand) | set([card]))
+    if card != interest_wo_my_cards[-1]:
+        return False
+    col_costs = [countHeads(col) for col in table]
+    return any([cost < col_costs[index] for cost in col_costs])
+
 def choose(table, hand):
     score_dict = {}
     table, max_cols = sort_table(table)
@@ -140,14 +147,20 @@ def choose(table, hand):
     #import IPython;IPython.embed()
     if check_first_card(table, hand, max_cols, 2):
         return hand[0]
-    list_of_interest = sorted(build_set_of_interest(table, max_cols))
+    l_interest = sorted(build_set_of_interest(table, max_cols))
     for card in hand:
         cur_col_i = find_best_index(table, max_cols, card)
         if cur_col_i != None:
-            ind_dif = index_difference(list_of_interest, max_cols[cur_col_i], card)
-            #import IPython;IPython.embed()
+            ind_dif = index_difference(l_interest, max_cols[cur_col_i], card)
             # Ranking, the difference with last card of the column, the number of cards in the column
             score_dict[card] = [1, ind_dif, -len(table[cur_col_i])]
+
+            # Assign higher score to the maximum card which we can play later.
+            # Now better to play low value cards, because anyway nobody will take
+            # this column and our card will be played to the same place
+            if can_postpone(table, cur_col_i, l_interest, hand, card):
+                score_dict[card][0] = 2
+
             # If the current card put in this column could possibly
             # lead to taking all the cards in the column
             if min(score_dict[card][1], n_players) - score_dict[card][2] > 5:
@@ -220,7 +233,7 @@ def init_all(junk_i, n_players_i=None, all_cards_i=None):
         n_players = len(all_cards) // 10
     if not all_cards_i:
         n_players = n_players_i
-        all_cards = set(range(1, n_players * 10 + 4))
+        all_cards = set(range(1, n_players * 10 + 5))
     junk = junk_i
 
 def main():
