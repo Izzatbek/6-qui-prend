@@ -4,7 +4,7 @@ import unittest
 class TestGame(unittest.TestCase):
     def setUp(self):
         init_all(set(), 4)
-    """
+
     def test_cows(self):
         self.assertEqual(card_vals[55], 7)
 
@@ -31,7 +31,7 @@ class TestGame(unittest.TestCase):
         table = [set([1, 2, 3, 4, 5]), set([21, 20, 13, 14, 15]), set([23]), set([24])]
         hand = set([6, 7, 9, 16, 19, 22])
         self.assertEqual(choose(table, hand), 19)
-    """
+
     """
     def test_take_column_with_the_least_cow_score(self):
         init_all(set(range(1, 25)), set([]))
@@ -39,7 +39,7 @@ class TestGame(unittest.TestCase):
         hand = set([6, 7, 9, 16, 17, 22])
         self.assertEqual(choose(table, hand), 22)
     """
-    """
+
     def test_diffence_considering_junk_table(self):
         junk = set([8, 9, 10, 11])
         all_cards = set([12, 21, 13, 23, 24, 1, 20, 6, 7]) | junk
@@ -53,7 +53,7 @@ class TestGame(unittest.TestCase):
         table = [set([8, 12]),set([21]),set([22, 23, 27, 29]), set([24, 25, 33, 34])]
         hand = [16, 19, 20]
         self.assertEqual(choose(table, hand), 16)
-    """
+
     def test_do_not_play_highest(self):
         init_all(set(), 3)
         hand = set([34, 4, 7, 12, 19, 20, 23, 27, 31])

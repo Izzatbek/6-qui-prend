@@ -41,7 +41,7 @@ def remove_column(table, card):
     table[ind] = set([card])
     return table
 
-def find_best_index(table, max_cols, card):
+def find_col_index(table, max_cols, card):
     cur_col_i = 0
     #import IPython;IPython.embed()
     while cur_col_i < 3 and card > max_cols[cur_col_i + 1]:
@@ -63,7 +63,7 @@ def play(table, hand, card, played):
     hand.discard(card)
     table, max_cols = sort_table(table)
     for c in played:
-        cur_col_i = find_best_index(table, max_cols, c)
+        cur_col_i = find_col_index(table, max_cols, c)
         if cur_col_i != None:
             if len(table[cur_col_i]) == 5:
                 junk |= table[cur_col_i]
@@ -93,31 +93,23 @@ construct_card_vals()
 def countHeads(card_stack):
     return sum(card_vals[v] for v in card_stack)
 
-def try_not_to_take(table, hand, score_dict):
-    print_table(table)
-    print(hand)
-    print(all_cards)
+def try_not_to_take(table, max_cols, hand):
+    # Another score_dict cost function
+    score_dict = {}
     opp_set = all_cards - set.union(*table) - set(hand) - junk
-    max_dif_card = max(score_dict, key=score_dict.get)
-    # Tries to play last
-    if any([max_dif_card > i for i in opp_set]):
-        return max_dif_card
-    # We take anyway, try to choose the column with the minimum number of cows
-    else:
-        # cost of each column on the table (cow cost)
-        col_costs = (countHeads(col) for col in table)
-        # minimum column cost
-        min_cost = min(col_costs)
-        # cost for each card
-        card_costs = []
-        for card in hand:
-            index = find_best_index(card)
-            # Append tuple with cost and the card
-            if index != None:
-                card_costs.append((col_costs[index], card))
-            else:
-                card_costs.append((min_cost, card))
-        return min(costs, key=lambda x: x[0])[1] # Check this
+    s_interest = opp_set | set(max_cols)
+    col_costs = [countHeads(col) for col in table]
+    for card in hand:
+        index = find_col_index(table, max_cols, card)
+        l_interest = sorted(s_interest | set([card]))
+        dif = index_difference(l_interest, max_cols[index], card)
+        # Try to find a card which is higher than the card of an opponent
+        if any([card > i for i in opp_set]):
+            score_dict[card] = [1, -dif, card]
+        # If not, try to take a column with the minimum number of cows
+        else:
+            score_dict[card] = [3, col_costs[index], card]
+    return min(score_dict, key=score_dict.get)
 
 def check_first_card(table, hand, max_cols, threshold):
     opp = sorted(all_cards - junk - set.union(*table) - set(hand))
@@ -127,7 +119,6 @@ def check_first_card(table, hand, max_cols, threshold):
     return any([countHeads(col) < threshold for col in table])
 
 def build_set_of_interest(table, max_cols):
-    global all_cards, junk
     return all_cards - set.union(*table) - junk | set(max_cols)
 
 def index_difference(list_of_interest, max_card, card):
@@ -149,7 +140,7 @@ def choose(table, hand):
         return hand[0]
     l_interest = sorted(build_set_of_interest(table, max_cols))
     for card in hand:
-        cur_col_i = find_best_index(table, max_cols, card)
+        cur_col_i = find_col_index(table, max_cols, card)
         if cur_col_i != None:
             ind_dif = index_difference(l_interest, max_cols[cur_col_i], card)
             # Ranking, the difference with last card of the column, the number of cards in the column
@@ -176,7 +167,7 @@ def choose(table, hand):
             score_dict[card] = [3, 0, 0]
     pprint(score_dict)
     if all([val[0] == 5 for k, val in score_dict.iteritems()]):
-    	return try_not_to_take(table, hand, score_dict)
+    	return try_not_to_take(table, max_cols, hand)
     return min(score_dict, key=score_dict.get)
 
 def verify_table(table):
