@@ -136,12 +136,14 @@ def choose(table, hand):
     if check_first_card(table, hand, max_cols, 2):
         return hand[0]
     l_interest = sorted(build_set_of_interest(table, max_cols))
+    col_costs = [countHeads(col) for col in table]
     for card in hand:
         cur_col_i = find_col_index(table, max_cols, card)
         if cur_col_i != None:
             ind_dif = index_difference(l_interest, max_cols[cur_col_i], card)
             # Ranking, the difference with last card of the column, the number of cards in the column
-            score_dict[card] = [1, ind_dif, -len(table[cur_col_i])]
+            # cow cost and the card value are added in the cost function.
+            score_dict[card] = [1, ind_dif, -len(table[cur_col_i]), -col_costs[cur_col_i], card]
 
             # Assign higher score to the maximum card which we can play later.
             # Now better to play low value cards, because anyway nobody will take

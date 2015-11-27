@@ -65,6 +65,11 @@ class TestGame(unittest.TestCase):
         table = [set([4]), set([6]), set([19, 20]), set([15])]
         self.assertEqual(choose(table, hand), 5)
 
+        init_all(set(), 3)
+        hand = set([34, 10, 30, 31])
+        table = [set([1, 4, 7]), set([8, 9, 3, 5, 6]), set([24, 25]), set([33])]
+        self.assertEqual(choose(table, hand), 30)
+
     def test_consecutive_taking_cards(self):
         junk = set([23])
         init_all(junk, 2)
@@ -84,6 +89,24 @@ class TestGame(unittest.TestCase):
         hand = set([7, 12, 19, 20, 27])
         init_all(junk, 3)
         self.assertNotEqual(choose(table, hand), 20)
+
+    def test_good_tie_cards(self):
+        table = [set([3, 6, 10]), set([36, 60]), set([12, 13]), set([5, 23])]
+        hand = set([26, 16])
+        init_all(set(), 6)
+        self.assertEqual(choose(table, hand), 26)
+
+        table = [set([3, 6, 10]), set([36, 60]), set([12, 13]), set([6, 23])]
+        hand = set([26, 16])
+        init_all(set(), 6)
+        self.assertEqual(choose(table, hand), 16)
+    """
+    def test_hope_for_opponents_mistake(self):
+        table = [set([5, 6, 7, 8, 9]), set([23]), set([1, 2, 3]), set([11, 12, 13, 14])]
+        hand = set([10, 16, 17, 21, 22])
+        init_all(set([4]), 2)
+        self.assertEqual(choose(table, hand), 16)
+    """
 
 
 if __name__ == '__main__':
