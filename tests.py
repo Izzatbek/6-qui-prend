@@ -36,14 +36,6 @@ class TestGame(unittest.TestCase):
         game.hand = set([6, 7, 9, 16, 19, 22])
         self.assertEqual(game.choose(), 19)
 
-    """
-    def test_take_column_with_the_least_cow_score(self):
-        init_all(set(range(1, 25)), set([]))
-        table = [set([1, 2, 3, 4, 5]), set([21, 20, 13, 14, 15]), set([23]), set([24])]
-        hand = set([6, 7, 9, 16, 17, 22])
-        self.assertEqual(choose(table, hand), 22)
-    """
-
     def test_diffence_considering_junk_table(self):
         game = Game(4)
         game.junk = set([8, 9, 10, 11])
@@ -69,7 +61,6 @@ class TestGame(unittest.TestCase):
         game.table = [set([4]), set([6]), set([19, 20]), set([15])]
         self.assertEqual(game.choose(), 5)
 
-    
     def test_consecutive_taking_cards(self):
         game = Game(2, junk=set([23]))
         game.table = [set([1, 2, 3, 4, 5]), set([8, 9, 10, 11, 7]), set([20, 21]), set([22])]
@@ -99,21 +90,11 @@ class TestGame(unittest.TestCase):
 
     """
     def test_hope_for_opponents_mistake(self):
-        table = [set([5, 6, 7, 8, 9]), set([23]), set([1, 2, 3]), set([11, 12, 13, 14])]
-        hand = set([10, 16, 17, 21, 22])
-        init_all(set([4]), 2)
-        self.assertEqual(choose(table, hand), 16)
+        game = Game(2, junk=set([4]))
+        game.table = [set([5, 6, 7, 8, 9]), set([23]), set([1, 2, 3]), set([11, 12, 13, 14])]
+        game.hand = [10, 16, 17, 21, 22]
+        self.assertEqual(game.choose(), 16)
     """
-
 
 if __name__ == '__main__':
     unittest.main()
-
-"""
-hand = set([5, 6, 10])
-#hand = set([9, 11, 7])
-table = [set([1, 2, 3, 4, 8]), set([22, 23, 24]), set([12, 13, 14, 16, 17]), set([15, 18, 19, 20, 21])]
-junk = set([])
-all_cards = set(range(1, 25))
-print choose(table, hand)
-"""

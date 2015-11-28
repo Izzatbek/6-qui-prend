@@ -5,7 +5,6 @@
 TODO list:
 
 Test the game for robustness
-Check tests
 Score counting and statistics
 
 """
@@ -174,6 +173,8 @@ class Game(object):
                 dif = index_difference(interest_wo_hand, interest_wo_hand[0], card)
                 # Try to find a card which is higher than the card of an opponent
                 score_dict[card] = [Card.CHOOSE_COLUMN, -dif, card]
+
         if all([val[0] == Card.POTENTIAL_TAKE for k, val in score_dict.iteritems()]):
         	return self.try_not_to_take()
+
         return min(score_dict, key=score_dict.get)
