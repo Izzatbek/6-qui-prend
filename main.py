@@ -49,15 +49,24 @@ def start():
     game.hand = hand
     return game
 
+def choose_card(game):
+    game.print_table()
+    while True:
+        ind = int(raw_input("Please choose a column to take: ")) - 1
+        if ind in range(0, 4):
+            break
+    return ind
+
 def main():
     game = start()
 
     while (len(game.hand) > 0):
         best = game.choose()
         print "The best card to choose is", best
+        print
         played_input = raw_input("Please define the played cards separating by space: ")
         played = [int(i) for i in played_input.split()]
-        game.play(best, played)
+        game.play(best, played, choose_card)
         print "Current hand and table: ", game.hand
         pprint(game.table)
 

@@ -3,11 +3,11 @@
 
 """
 TODO list:
-1. Test the game for robustness
-2. Add enum for scores
-3. Reimplement remove_column
-4. Check tests
-5. Score counting and statistics
+
+Test the game for robustness
+Check tests
+Score counting and statistics
+
 """
 
 def construct_card_vals():
@@ -27,6 +27,16 @@ def countHeads(card_stack):
 
 def index_difference(list_of_interest, max_card, card):
     return list_of_interest.index(card) - list_of_interest.index(max_card)
+
+class Card:
+    # Costs for choose function
+    PLAY_NOW = 1
+    PLAY_LATER = 2
+    CHOOSE_COLUMN = 3
+    POTENTIAL_TAKE = 4
+    # Costs for try_not_to_take function
+    MAX_DIFF = 1
+    MIN_COWS = 2
 
 class Game(object):
 
@@ -65,20 +75,10 @@ class Game(object):
             print "Column", i + 1, sorted(column)
         print
 
-    def remove_column(self, card):
-        self.print_table()
-        while True:
-            ind = int(raw_input("Please choose a column to take: ")) - 1
-            if ind in range(0, 4):
-                break
+    def remove_column(self, ind, card):
+        assert(ind in range(0, 4))
         self.junk |= self.table[ind]
         self.table[ind] = set([card])
-        """
-        self.print_table()
-        assert(col_ind in range(0, 4))
-        self.junk |= self.table[col_ind]
-        self.table[col_ind] = set([card])
-        """
 
     def find_col_index(self, card):
         cur_col_i = 0
@@ -91,7 +91,7 @@ class Game(object):
             return None
         return cur_col_i
 
-    def play(self, card, played):
+    def play(self, card, played, remove_func):
         # card: chosen card
         # played: all other cards
         played = sorted(set(played) | set([card]))
@@ -107,7 +107,7 @@ class Game(object):
                 else:
                     self.table[cur_col_i].add(card)
             else:
-                self.remove_column(card)
+                self.remove_column(remove_func(self), card)
 
     def try_not_to_take(self):
         # Another score_dict cost function
@@ -120,10 +120,10 @@ class Game(object):
             dif = index_difference(l_interest, self.max_cols[index], card)
             # Try to find a card which is higher than the card of an opponent
             if dif > 1: # 1 can be changed
-                score_dict[card] = [1, -dif, card]
+                score_dict[card] = [Card.MAX_DIFF, -dif, card]
             # If not, try to take a column with the minimum number of cows
             else:
-                score_dict[card] = [3, col_costs[index], card]
+                score_dict[card] = [Card.MIN_COWS, col_costs[index], card]
         return min(score_dict, key=score_dict.get)
 
     def check_first_card(self, threshold):
@@ -155,25 +155,25 @@ class Game(object):
                 ind_dif = index_difference(l_interest, self.max_cols[cur_col_i], card)
                 # Ranking, the difference with last card of the column, the number of cards in the column
                 # cow cost and the card value are added in the cost function.
-                score_dict[card] = [1, ind_dif, -len(self.table[cur_col_i]), -col_costs[cur_col_i], card]
+                score_dict[card] = [Card.PLAY_NOW, ind_dif, -len(self.table[cur_col_i]), -col_costs[cur_col_i], card]
 
                 # Assign higher score to the maximum card which we can play later.
                 # Now better to play low value cards, because anyway nobody will take
                 # this column and our card will be played to the same place
                 if self.can_postpone(cur_col_i, l_interest, card):
-                    score_dict[card][0] = 2
+                    score_dict[card][0] = Card.PLAY_LATER
 
                 # If the current card put in this column could possibly
                 # lead to taking all the cards in the column
                 if min(score_dict[card][1], self.n_players) - score_dict[card][2] > 5:
-                    score_dict[card][0] = 5 # Change the score to higher
+                    score_dict[card][0] = Card.POTENTIAL_TAKE # Change the score to higher
             else:
                 # Maybe add another strategy to compute costs like
                 # taking into account cow scores?
                 interest_wo_hand = sorted(set(l_interest) - set(self.hand) | set([card]))
                 dif = index_difference(interest_wo_hand, interest_wo_hand[0], card)
                 # Try to find a card which is higher than the card of an opponent
-                score_dict[card] = [3, -dif, card]
-        if all([val[0] == 5 for k, val in score_dict.iteritems()]):
+                score_dict[card] = [Card.CHOOSE_COLUMN, -dif, card]
+        if all([val[0] == Card.POTENTIAL_TAKE for k, val in score_dict.iteritems()]):
         	return self.try_not_to_take()
         return min(score_dict, key=score_dict.get)
