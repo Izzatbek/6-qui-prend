@@ -66,7 +66,7 @@ def main():
         print
         played_input = raw_input("Please define the played cards separating by space: ")
         played = [int(i) for i in played_input.split()]
-        game.play(best, played, choose_card)
+        game.play(played, choose_card)
         print "Current hand and table: ", game.hand
         pprint(game.table)
 

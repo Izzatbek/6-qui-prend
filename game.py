@@ -52,12 +52,16 @@ class Game(object):
     def table(self):
         return self._table
 
+    def sort_table(self):
+        self._table = sorted(self._table, key=lambda t: max(t))
+        self.max_cols = [max(col) for col in self._table]
+
     @table.setter
     def table(self, table):
         # N of columns must be == 4 and N of cards < 6
         assert(len(table) == 4 and all(len(col) < 6 for col in table))
-        self._table = sorted(table, key=lambda t: max(t))
-        self.max_cols = [max(col) for col in self._table]
+        self._table = table
+        self.sort_table()
 
     @property
     def hand(self):
@@ -90,14 +94,16 @@ class Game(object):
             return None
         return cur_col_i
 
-    def play(self, card, played, remove_func):
+    def play(self, played, remove_func):
         # card: chosen card
         # played: all other cards
-        played = sorted(set(played) | set([card]))
-        self.hand.remove(card)
+        self.sort_table()
+        played.sort()
+        for card in played:
+            if card in self.hand:
+                self.hand.remove(card)
         for card in played:
             # This calls setter
-            self.table = self.table
             cur_col_i = self.find_col_index(card)
             if cur_col_i != None:
                 if len(self.table[cur_col_i]) == 5:
@@ -107,6 +113,7 @@ class Game(object):
                     self.table[cur_col_i].add(card)
             else:
                 self.remove_column(remove_func(self), card)
+            self.sort_table()
 
     def try_not_to_take(self):
         # Another score_dict cost function
